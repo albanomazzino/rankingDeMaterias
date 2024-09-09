@@ -18,7 +18,7 @@ spring:
           issuer-uri: https://accounts.google.com
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/users
+    url: jdbc:postgresql://postgresql-users:5432/users
     username: username
     password: password
   jpa:

@@ -1,15 +1,32 @@
 services:
-  postgresql:
-    container_name: postgresql
+  postgresql-users:
+    container_name: postgresql-users
     image: postgres
     environment:
       POSTGRES_USER: username
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - postgres-users:/data/postgres
     ports:
       - "5432:5432"
+    networks:
+      - backend-network
+    restart: unless-stopped
+
+  postgresql-schools:
+    container_name: postgresql-schools
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: schools
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-schools:/data/postgres
+    ports:
+      - "5433:5432"
     networks:
       - backend-network
     restart: unless-stopped
@@ -41,14 +58,16 @@ services:
     container_name: config-server
     image: rankingDeMaterias/config-server:latest
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      eureka.instance.hostname: config-server
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
     ports:
       - "8888:8888"
     networks:
       - backend-network
     depends_on:
-      - postgresql
-    restart: unless-stopped
+      - postgresql-users
+      - postgresql-schools
+    restart: on-failure
 
   discovery-server:
     container_name: discovery-server
@@ -59,9 +78,10 @@ services:
       - backend-network
     depends_on:
       - config-server
-    restart: unless-stopped
+    restart: on-failure
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      eureka.instance.hostname: discovery-server
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
   gateway:
@@ -73,10 +93,9 @@ services:
       - backend-network
     depends_on:
       - config-server
-      - discovery-server
-    restart: unless-stopped
+    restart: on-failure
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
   user-service:
@@ -88,11 +107,10 @@ services:
       - backend-network
     depends_on:
       - config-server
-      - discovery-server
-      - postgresql
+      - postgresql-users
     restart: unless-stopped
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
   school-service:
@@ -104,11 +122,10 @@ services:
       - backend-network
     depends_on:
       - config-server
-      - discovery-server
-      - postgresql
-    restart: unless-stopped
+      - postgresql-schools
+    restart: on-failure
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
 networks:
@@ -116,5 +133,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres:
+  postgres-users:
+  postgres-schools:
   pgadmin:
