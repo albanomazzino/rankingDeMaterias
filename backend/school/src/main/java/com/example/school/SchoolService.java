@@ -20,14 +20,14 @@ public class SchoolService {
         return schoolRepository.findAll();
     }
 
-    public FullSchoolResponse findAllSchoolsWithUsers(Long schoolId) {
+    public FullSchoolResponse findAllSchoolsWithUsers(Long schoolId, String token) {
         var school = schoolRepository.findById(schoolId)
             .orElse(School.builder()
                 .name("NOT_FOUND")
                 .address("NOT_FOUND")
                 .build());
 
-        var users = userClient.findAllUsersBySchoolId(schoolId);
+        var users = userClient.findAllUsersBySchoolId(schoolId, token);
 
         return FullSchoolResponse.builder()
             .name(school.getName())

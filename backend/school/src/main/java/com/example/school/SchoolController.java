@@ -25,7 +25,7 @@ public class SchoolController {
     }
 
     @GetMapping("/with-users/{school-id}")
-    public ResponseEntity<FullSchoolResponse> findSchoolWithUsers(@PathVariable("school-id") Long schoolId) {
-        return ResponseEntity.ok(schoolService.findAllSchoolsWithUsers(schoolId));
+    public ResponseEntity<FullSchoolResponse> findSchoolWithUsers(@PathVariable("school-id") Long schoolId, @RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(schoolService.findAllSchoolsWithUsers(schoolId, token));
     }
 }
