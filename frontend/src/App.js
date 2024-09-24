@@ -124,11 +124,12 @@ function App() {
                                 onChange={handleCareerChange} 
                             />
                         )}
-
-                        {Object.keys(user).length !== 0 && selectedCareer && (
-                            <DragDropList items={items} onDragEnd={onDragEnd} />
-                        )}
                     </VStack>
+                    {Object.keys(user).length !== 0 && selectedCareer && (
+                        <Box width="100%" alignSelf="flex-start" mt={5}>
+                            <DragDropList items={items} onDragEnd={onDragEnd} />
+                        </Box>
+                    )}
                 </Box>
             </Box>
         </ChakraProvider>

@@ -9,7 +9,7 @@ export const videoStyles = {
   };
   
   export const boxStyles = (colorMode) => ({
-    bg: colorMode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+    bg: colorMode === 'light' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.8)',
     color: colorMode === 'light' ? 'black' : 'white',
     minH: '100vh',
     display: 'flex',
@@ -41,12 +41,11 @@ export const videoStyles = {
     margin: `0 0 8px 0`,
     background: isDragging
       ? 'lightgreen'
-      : 'linear-gradient(to right, rgba(128, 128, 128, 0.7), rgba(255, 255, 255, 0.05))',
+      : 'linear-gradient(to right, rgba(128, 128, 128, 0.45), rgba(255, 255, 255, 0))',
     ...draggableStyle,
   });
   
   export const getListStyle = (isDraggingOver) => ({
     background: 'transparent',
     padding: 8,
-    width: 250,
   });  
