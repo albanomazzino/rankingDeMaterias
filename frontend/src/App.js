@@ -3,23 +3,20 @@ import { jwtDecode } from 'jwt-decode';
 import {
     ChakraProvider,
     Box,
-    Button,
-    Select,
     Heading,
+    IconButton,
     Text,
     Flex,
     useColorMode,
-    IconButton,
     VStack,
-    Avatar,
 } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { videoStyles, boxStyles, selectStyles, getItemStyle, getListStyle, selectOptionStyle } from './styles/styles';
+import UserProfile from './components/Auth/UserProfile';
+import UniversitySelect from './components/Rankings/UniversitySelect';
+import CareerSelect from './components/Rankings/CareerSelect';
+import DragDropList from './components/Rankings/DragDropList';
+import { videoStyles, boxStyles } from './styles/styles';
 import { UNS_MATTERS } from './constants';
-import Icon from '@mdi/react';
-import { mdiExitRun } from '@mdi/js';
-
 
 const google = window.google;
 
@@ -45,7 +42,7 @@ function App() {
     }
 
     function fetchUniversities(token) {
-        // Aquí puedes hacer el fetch a tu backend si deseas obtener las universidades desde allí
+        // Fetch universities if needed
     }
 
     useEffect(() => {
@@ -102,27 +99,16 @@ function App() {
                     <Flex justify="space-between" align="center" mb={5}>
                         <Heading as="h1" size="xl" textAlign="center">Ranking de materias</Heading>
                         <Flex align="center">
-
                             {Object.keys(user).length !== 0 && (
-                                <>
-                                    <Avatar src={user.picture} alt={user.name} size="sm" />
-                                    <Text ml={2}>{user.name}</Text>
-                                    <IconButton
-                                        aria-label="Cerrar sesión"
-                                        icon={<Icon path={mdiExitRun} size={1} />}
-                                        onClick={handleSignOut}
-                                        variant="outline"
-                                        ml={2}
-                                    />
-                                </>
+                                <UserProfile user={user} onSignOut={handleSignOut} />
                             )}
                             <div id="signInDiv" style={{ marginLeft: '10px' }}></div>
                             <IconButton
-                                aria-label="Toggle dark mode"
+                                aria-label="Toggle Dark Mode"
                                 icon={colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
                                 onClick={toggleColorMode}
                                 variant="outline"
-                                ml={2} // Espacio lateral
+                                ml={2}
                             />
                         </Flex>
                     </Flex>
@@ -130,79 +116,17 @@ function App() {
                     <VStack spacing={5}>
                         <Text fontSize="lg">Por favor, selecciona tu universidad y carrera para ordenar las materias.</Text>
 
-                        <Select
-                            width="300px"
-                            onChange={handleUniversityChange}
-                            focusBorderColor="black"
-                            sx={selectStyles}
-                        >
-                            {universities.map((university, index) => (
-                                <option 
-                                    key={index} 
-                                    value={university}
-                                    style={selectOptionStyle}
-                                >
-                                    {university}
-                                </option>
-                            ))}
-                            <option selected hidden disabled value="">Selecciona tu universidad</option>
-                        </Select>
-
+                        <UniversitySelect universities={universities} onChange={handleUniversityChange} />
+                        
                         {selectedUniversity === "Universidad Nacional del Sur" && (
-                            <Select
-                                width="300px"
-                                onChange={handleCareerChange}
-                                focusBorderColor="white"
-                                sx={selectStyles}
-                            >
-                                {Object.keys(UNS_MATTERS).map((career, index) => (
-                                    <option 
-                                        key={index} 
-                                        value={career}
-                                        style={selectOptionStyle}
-                                    >
-                                        {career}
-                                    </option>
-                                ))}
-                                <option selected hidden disabled value="">Selecciona tu carrera</option>
-                            </Select>
+                            <CareerSelect 
+                                careers={Object.keys(UNS_MATTERS)} 
+                                onChange={handleCareerChange} 
+                            />
                         )}
 
                         {Object.keys(user).length !== 0 && selectedCareer && (
-                            <DragDropContext onDragEnd={onDragEnd}>
-                                <Droppable droppableId="droppable">
-                                    {(provided, snapshot) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            style={{
-                                                ...getListStyle(snapshot.isDraggingOver),
-                                                width: '50%', // Set the width to 50%
-                                                marginLeft: '0', // Align to the left
-                                            }}
-                                            {...provided.droppableProps}
-                                        >
-                                            {items.map((item, index) => (
-                                                <Draggable key={item.id} draggableId={item.id} index={index}>
-                                                    {(provided, snapshot) => (
-                                                        <div>
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                style={getItemStyle(provided.draggableProps.style, snapshot.isDragging)}
-                                                            >
-                                                                <Text as="span" fontWeight="bold" mr={2}>{index + 1}.</Text> {/* Fixed position number */}
-                                                                {item.content}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </DragDropContext>
+                            <DragDropList items={items} onDragEnd={onDragEnd} />
                         )}
                     </VStack>
                 </Box>

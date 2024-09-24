@@ -6,6 +6,7 @@ const CareerSelect = ({ careers, onChange }) => (
     <Select
         width="300px"
         onChange={onChange}
+        focusBorderColor="black"
         sx={selectStyles}
     >
         <option selected hidden disabled value="">
