@@ -6,10 +6,10 @@ eureka:
       defaultZone: http://localhost:8761/eureka
 
 server:
-  port: 8090
+  port: 8100
 spring:
   application:
-    name: users
+    name: rankings
   security:
     oauth2:
       resourceserver:
@@ -17,7 +17,7 @@ spring:
           issuer-uri: https://accounts.google.com
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgresql-users:5432/users
+    url: jdbc:postgresql://postgresql-rankings:5432/rankings
     username: username
     password: password
   jpa:

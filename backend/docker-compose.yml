@@ -31,6 +31,22 @@ services:
       - backend-network
     restart: unless-stopped
 
+  postgresql-rankings:
+    container_name: postgresql-rankings
+    image: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: rankings
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-rankings:/data/postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - backend-network
+    restart: unless-stopped
+
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -67,6 +83,7 @@ services:
     depends_on:
       - postgresql-users
       - postgresql-schools
+      - postgresql-rankings
     restart: on-failure
 
   discovery-server:
@@ -128,6 +145,21 @@ services:
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
+  ranking-service:
+    container_name: ranking-service
+    image: rankingDeMaterias/ranking-service:latest
+    ports:
+      - "8100:8100"
+    networks:
+      - backend-network
+    depends_on:
+      - config-server
+      - postgresql-rankings
+    restart: on-failure
+    environment:
+      eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+
 networks:
   backend-network:
     driver: bridge
@@ -135,4 +167,5 @@ networks:
 volumes:
   postgres-users:
   postgres-schools:
+  postgres-rankings:
   pgadmin:

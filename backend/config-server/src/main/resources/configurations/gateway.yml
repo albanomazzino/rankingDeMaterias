@@ -25,6 +25,10 @@ spring:
           uri: http://school-service:8070
           predicates:
             - Path=/api/v1/schools/**
+        - id: rankings
+          uri: http://ranking-service:8100
+          predicates:
+            - Path=/api/v1/rankings/**
 
 management:
   tracing:

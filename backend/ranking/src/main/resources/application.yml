@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: rankings
+  config:
+    import: optional:configserver:http://config-server:8888
