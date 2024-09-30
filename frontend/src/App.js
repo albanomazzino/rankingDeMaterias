@@ -122,29 +122,25 @@ function App() {
     };
 
     const handleRankingSubmit = async () => {
-        if (!user || !selectedCareerId || subjects.length === 0) {
-            alert('Por favor completa todos los campos.');
+        if (Object.keys(user).length === 0|| !selectedCareerId || subjects.length === 0) {
+            alert('Por favor asegurate de estar logueado y haber establecido un orden para todas las materias.');
             return;
         }
 
         const rankedCourses = subjects.map((subject, index) => ({
-            id: subject.id,
-            name: subject.content,
-            rank: index + 1,
+            position: index + 1,
+            courseName: subject.name,
         }));
+        
 
         const userRanking = {
-            id: { userId: user.id, careerId: selectedCareerId },
+            id: { userId: user.sub, careerId: selectedCareerId },
             rankedCourses: rankedCourses,
         };
 
-        console.log('Ranking a enviar:', JSON.stringify(userRanking, null, 2));
-
-        alert('Tu ranking ha sido enviado.');
 
         try {
-            const savedRanking = await saveRanking(userRanking);
-            console.log('Ranking guardado:', savedRanking);
+            const savedRanking = await saveRanking(userRanking, userToken);
             setRankingSubmitted(true);
         } catch (error) {
             alert('Error al guardar el ranking.');

@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
 @Service
@@ -23,7 +24,7 @@ public class UserRankingService {
         }
     }
 
-    public Optional<UserRanking> getUserRanking(Long userId, Long careerId) {
+    public Optional<UserRanking> getUserRanking(BigInteger userId, Long careerId) {
         UserRankingId id = new UserRankingId(userId, careerId);
         return userRankingRepository.findById(id);
     }
@@ -37,7 +38,7 @@ public class UserRankingService {
         }
     }
 
-    public void deleteUserRanking(Long userId, Long careerId) {
+    public void deleteUserRanking(BigInteger userId, Long careerId) {
         UserRankingId id = new UserRankingId(userId, careerId);
         if (userRankingRepository.existsById(id)) {
             userRankingRepository.deleteById(id);

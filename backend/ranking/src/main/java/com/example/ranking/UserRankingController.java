@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
 @RestController
@@ -23,14 +24,14 @@ public class UserRankingController {
     }
 
     @GetMapping("/{userId}/{careerId}")
-    public ResponseEntity<UserRanking> getUserRanking(@PathVariable Long userId, @PathVariable Long careerId) {
+    public ResponseEntity<UserRanking> getUserRanking(@PathVariable BigInteger userId, @PathVariable Long careerId) {
         Optional<UserRanking> userRanking = userRankingService.getUserRanking(userId, careerId);
         return userRanking.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{userId}/{careerId}")
-    public ResponseEntity<UserRanking> updateUserRanking(@PathVariable Long userId, @PathVariable Long careerId, @RequestBody UserRanking userRanking) {
+    public ResponseEntity<UserRanking> updateUserRanking(@PathVariable BigInteger userId, @PathVariable Long careerId, @RequestBody UserRanking userRanking) {
         try {
             userRanking.setId(new UserRankingId(userId, careerId));
             UserRanking updatedRanking = userRankingService.updateUserRanking(userRanking);
@@ -41,7 +42,7 @@ public class UserRankingController {
     }
 
     @DeleteMapping("/{userId}/{careerId}")
-    public ResponseEntity<Void> deleteUserRanking(@PathVariable Long userId, @PathVariable Long careerId) {
+    public ResponseEntity<Void> deleteUserRanking(@PathVariable BigInteger userId, @PathVariable Long careerId) {
         try {
             userRankingService.deleteUserRanking(userId, careerId);
             return ResponseEntity.noContent().build();

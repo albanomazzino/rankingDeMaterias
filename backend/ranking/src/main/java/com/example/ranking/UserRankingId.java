@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import lombok.*;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Objects;
 
 @Getter
@@ -12,7 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Embeddable
 public class UserRankingId implements Serializable {
-    private Long userId;
+    private BigInteger userId;
     private Long careerId;
 
     @Override
