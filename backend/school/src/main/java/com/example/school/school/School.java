@@ -1,5 +1,7 @@
-package com.example.school;
+package com.example.school.school;
 
+import com.example.school.career.Career;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "schools")
@@ -26,6 +29,10 @@ public class School {
 
     @Column(nullable = false)
     private String address; // then country, state, zipcode, etc.
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "school", cascade = CascadeType.ALL)
+    private List<Career> careers;
 
     @Column(updatable = false)
     @CreationTimestamp

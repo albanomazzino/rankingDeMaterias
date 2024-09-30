@@ -1,4 +1,4 @@
-package com.example.school;
+package com.example.school.school;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
