@@ -35,7 +35,7 @@ export const videoStyles = {
     color: 'white',
   };
   
-  export const getItemStyle = (draggableStyle, isDragging) => ({
+  export const getSubjectStyle = (draggableStyle, isDragging) => ({
     userSelect: 'none',
     padding: 8 * 2,
     margin: `0 0 8px 0`,

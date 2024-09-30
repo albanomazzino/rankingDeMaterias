@@ -12,9 +12,9 @@ const UniversitySelect = ({ universities, onChange }) => (
         <option selected hidden disabled value="">
             Selecciona tu universidad
         </option>
-        {universities.map((university, index) => (
-            <option key={index} value={university} style={selectOptionStyle}>
-                {university}
+        {universities.map((university) => (
+            <option key={university.id} value={university.id} style={selectOptionStyle}>
+                {university.name}
             </option>
         ))}
     </Select>

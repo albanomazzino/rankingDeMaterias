@@ -1,9 +1,9 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Text } from '@chakra-ui/react';
-import { getItemStyle, getListStyle } from '../../styles/styles';
+import { getSubjectStyle, getListStyle } from '../../styles/styles';
 
-const DragDropList = ({ items, onDragEnd }) => (
+const Subjects = ({ subjects, onDragEnd }) => (
     <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
             {(provided, snapshot) => (
@@ -12,17 +12,17 @@ const DragDropList = ({ items, onDragEnd }) => (
                     style={getListStyle(snapshot.isDraggingOver)}
                     {...provided.droppableProps}
                 >
-                    {items.map((item, index) => (
-                        <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {subjects.map((subject, index) => (
+                        <Draggable key={subject.id} draggableId={subject.id.toString()} index={index}>
                             {(provided, snapshot) => (
                                 <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
-                                    style={getItemStyle(provided.draggableProps.style, snapshot.isDragging)}
+                                    style={getSubjectStyle(provided.draggableProps.style, snapshot.isDragging)}
                                 >
                                     <Text as="span" fontWeight="bold" mr={2}>{index + 1}.</Text>
-                                    {item.content}
+                                    {subject.name}
                                 </div>
                             )}
                         </Draggable>
@@ -34,4 +34,4 @@ const DragDropList = ({ items, onDragEnd }) => (
     </DragDropContext>
 );
 
-export default DragDropList;
+export default Subjects;

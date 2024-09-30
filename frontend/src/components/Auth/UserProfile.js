@@ -10,7 +10,7 @@ const UserProfile = ({ user, onSignOut }) => {
             <Text ml={2}>{user.name}</Text>
             <IconButton
                 aria-label="Cerrar sesión"
-                icon={<Icon path={mdiExitRun} size={1} />}
+                icon={<Icon path={mdiExitRun} size={1} color="white" />}
                 onClick={onSignOut}
                 variant="outline"
                 ml={2}
