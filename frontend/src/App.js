@@ -18,9 +18,10 @@ import UserProfile from './components/Auth/UserProfile';
 import UniversitySelect from './components/Rankings/UniversitySelect';
 import CareerSelect from './components/Rankings/CareerSelect';
 import Subjects from './components/Rankings/Subjects';
-import saveRanking from './components/Rankings/RankingService';
+import saveRanking, { fetchUserRankingsByCareer } from './components/Rankings/RankingService';
 import { videoStyles, boxStyles } from './styles/styles';
 import { fetchUniversities, fetchCareersByUniversity, fetchSubjectsByCareer } from './components/Schools/SchoolService';
+import AggregatedRankings from './components/Rankings/AggregatedRankings';
 
 const google = window.google;
 
@@ -33,6 +34,8 @@ function App() {
     const [selectedUniversity, setSelectedUniversity] = useState('');
     const [selectedCareerId, setSelectedCareerId] = useState('');
     const [rankingSubmitted, setRankingSubmitted] = useState(false);
+    const [rankingMode, setRankingMode] = useState(false);
+    const [aggregatedRankings, setAggregatedRankings] = useState([]);
     const { colorMode, toggleColorMode } = useColorMode();
 
     useEffect(() => {
@@ -69,6 +72,7 @@ function App() {
         const userObject = jwtDecode(token);
         setUser(userObject);
         setUserToken(token);
+        console.log(token);
         document.getElementById("signInDiv").hidden = true;
     }
 
@@ -83,6 +87,7 @@ function App() {
         setCareers([]);
         setSelectedCareerId('');
         setSubjects([]);
+        setAggregatedRankings([]);
 
         try {
             const careersData = await fetchCareersByUniversity(universityId, userToken);
@@ -97,12 +102,18 @@ function App() {
         const careerId = e.target.value;
         setSubjects([]);
         setSelectedCareerId(careerId);
+        setRankingSubmitted(false);
         
         try {
-            const subjectsData = await fetchSubjectsByCareer(careerId, userToken);
-            setSubjects(subjectsData);
+            if (!rankingMode) {
+                const rankingsData = await fetchUserRankingsByCareer(careerId, userToken);
+                setAggregatedRankings(rankingsData);
+            } else {
+                const subjectsData = await fetchSubjectsByCareer(careerId, userToken);
+                setSubjects(subjectsData);
+            }
         } catch (error) {
-            alert('Error loading subjects');
+            alert('Error loading data');
         }
     };
 
@@ -142,10 +153,30 @@ function App() {
         try {
             const savedRanking = await saveRanking(userRanking, userToken);
             setRankingSubmitted(true);
+            setRankingMode(false);
         } catch (error) {
             alert('Error al guardar el ranking.');
         }
     };
+
+    const toggleRankingMode = async () => {
+        setRankingMode(!rankingMode);
+        
+        if (!rankingMode) {
+            if (!selectedCareerId) {
+                alert('Please select a career first.');
+                return;
+            }
+    
+            try {
+                const subjectsData = await fetchSubjectsByCareer(selectedCareerId, userToken);
+                setSubjects(subjectsData);
+            } catch (error) {
+                alert('Error fetching subjects.');
+            }
+        }
+    };
+      
 
     return (
         <ChakraProvider>
@@ -187,17 +218,38 @@ function App() {
                     </VStack>
                     {Object.keys(user).length !== 0 && selectedCareerId && (
                         <Box width="100%" alignSelf="flex-start" mt={5}>
-                            <Subjects subjects={subjects} onDragEnd={onDragEnd} />
-                            <Flex justifyContent="center" mt={4}>
-                                <Button colorScheme="teal" onClick={handleRankingSubmit}>
-                                    Rankear
-                                </Button>
-                            </Flex>
-                            {rankingSubmitted && (
-                                <Alert status="info" mt={4}>
-                                    <AlertIcon />
-                                    Tu ranking ha sido enviado!
-                                </Alert>
+                             {rankingMode ? (
+                                <>
+                                    <Subjects subjects={subjects} onDragEnd={onDragEnd} />
+                                    <Flex justifyContent="center" mt={4}>
+                                        <Button colorScheme="teal" onClick={handleRankingSubmit}>
+                                            Rankear
+                                        </Button>
+                                    </Flex>
+                                    {rankingSubmitted && (
+                                        <Alert status="info" mt={4}>
+                                            <AlertIcon />
+                                            Your ranking has been submitted!
+                                        </Alert>
+                                    )}
+                                    <Flex justifyContent="center" mt={4}>
+                                        <Button colorScheme="gray" onClick={() => setRankingMode(false)}>
+                                            View Current Ranking
+                                        </Button>
+                                    </Flex>
+                                </>
+                            ) : (
+                                <>
+                                    <Flex direction="column" align="center" width="100%">
+                                        <Text fontSize="xl" fontWeight="bold"  mt={4}>Ranking por experiencia general</Text>
+                                        <AggregatedRankings rankings={aggregatedRankings} />
+                                        <Flex justifyContent="center" mt={4}>
+                                            <Button colorScheme="teal" onClick={toggleRankingMode}>
+                                                Let me rank
+                                            </Button>
+                                        </Flex>
+                                    </Flex>
+                                </>
                             )}
                         </Box>
                     )}
