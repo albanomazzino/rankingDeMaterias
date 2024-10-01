@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import {
-    ChakraProvider,
     Box,
     Heading,
     IconButton,
@@ -19,7 +18,7 @@ import UniversitySelect from './components/Rankings/UniversitySelect';
 import CareerSelect from './components/Rankings/CareerSelect';
 import Subjects from './components/Rankings/Subjects';
 import saveRanking, { fetchUserRankingsByCareer } from './components/Rankings/RankingService';
-import { videoStyles, boxStyles } from './styles/styles';
+import { getStyles, videoStyles } from './styles/styles';
 import { fetchUniversities, fetchCareersByUniversity, fetchSubjectsByCareer } from './components/Schools/SchoolService';
 import AggregatedRankings from './components/Rankings/AggregatedRankings';
 
@@ -37,6 +36,7 @@ function App() {
     const [rankingMode, setRankingMode] = useState(false);
     const [aggregatedRankings, setAggregatedRankings] = useState([]);
     const { colorMode, toggleColorMode } = useColorMode();
+    const styles = getStyles(colorMode);
 
     useEffect(() => {
         google.accounts.id.initialize({
@@ -132,6 +132,10 @@ function App() {
         setSubjects(reorderedSubjects);
     };
 
+    const printAss = () => {
+        console.log("AAAAAAAAAAAAA");
+    };
+
     const handleRankingSubmit = async () => {
         if (Object.keys(user).length === 0|| !selectedCareerId || subjects.length === 0) {
             alert('Por favor asegurate de estar logueado y haber establecido un orden para todas las materias.');
@@ -179,83 +183,90 @@ function App() {
       
 
     return (
-        <ChakraProvider>
-            <Box position="relative" minH="100vh">
-                <video autoPlay muted loop style={videoStyles}>
-                    <source src="/landing_bg.mp4" type="video/mp4" />
-                </video>
+        <Box position="relative" minH="100vh">
+            <video autoPlay muted loop style={videoStyles}>
+                <source src="/landing_bg.mp4" type="video/mp4" />
+            </video>
 
-                <Box sx={boxStyles(colorMode)}>
-                    <Flex justify="space-between" align="center" mb={5}>
-                        <Heading as="h1" size="xl" textAlign="center">Ranking de materias</Heading>
-                        <Flex align="center">
-                            {Object.keys(user).length !== 0 && (
-                                <UserProfile user={user} onSignOut={handleSignOut} />
-                            )}
-                            <div id="signInDiv" style={{ marginLeft: '10px' }}></div>
-                            <IconButton
-                                aria-label="Toggle Dark Mode"
-                                icon={colorMode === 'light' ? <MoonIcon color="white" /> : <SunIcon color="white" />}
-                                onClick={toggleColorMode}
-                                variant="outline"
-                                ml={2}
-                            />
-                        </Flex>
-                    </Flex>
-
-                    <VStack spacing={5}>
-                        <Text fontSize="lg">Por favor, selecciona tu universidad y carrera para ordenar las materias.</Text>
-
-                        <UniversitySelect universities={universities} onChange={handleUniversityChange} />
-                        
-                        {selectedUniversity && (
-                            <CareerSelect 
-                                careers={careers}
-                                onChange={handleCareerChange} 
-                                value={selectedCareerId}
-                            />
+            <Box sx={styles.boxStyles}>
+                <Flex justify="space-between" align="center" mb={5}>
+                    <Heading as="h1" size="xl" textAlign="center" color={styles.boxStyles.color}>
+                        Ranking de materias
+                    </Heading>
+                    <Flex align="center">
+                        {Object.keys(user).length !== 0 && (    
+                            <UserProfile colormode={colorMode} user={user} onSignOut={handleSignOut} />
                         )}
-                    </VStack>
-                    {Object.keys(user).length !== 0 && selectedCareerId && (
-                        <Box width="100%" alignSelf="flex-start" mt={5}>
-                             {rankingMode ? (
-                                <>
-                                    <Subjects subjects={subjects} onDragEnd={onDragEnd} />
-                                    <Flex justifyContent="center" mt={4}>
-                                        <Button colorScheme="teal" onClick={handleRankingSubmit}>
-                                            Rankear
-                                        </Button>
-                                    </Flex>
-                                    {rankingSubmitted && (
-                                        <Alert status="info" mt={4}>
-                                            <AlertIcon />
-                                            Your ranking has been submitted!
-                                        </Alert>
-                                    )}
-                                    <Flex justifyContent="center" mt={4}>
-                                        <Button colorScheme="gray" onClick={() => setRankingMode(false)}>
-                                            View Current Ranking
-                                        </Button>
-                                    </Flex>
-                                </>
-                            ) : (
-                                <>
-                                    <Flex direction="column" align="center" width="100%">
-                                        <Text fontSize="xl" fontWeight="bold"  mt={4}>Ranking por experiencia general</Text>
-                                        <AggregatedRankings rankings={aggregatedRankings} />
-                                        <Flex justifyContent="center" mt={4}>
-                                            <Button colorScheme="teal" onClick={toggleRankingMode}>
-                                                Let me rank
-                                            </Button>
-                                        </Flex>
-                                    </Flex>
-                                </>
-                            )}
-                        </Box>
+                        <div id="signInDiv" style={styles.signInStyles}></div>
+                        <IconButton
+                            aria-label="Toggle Dark Mode"
+                            icon={colorMode === 'light' ? <MoonIcon color="black" /> : <SunIcon color="white" />}
+                            onClick={toggleColorMode}
+                            variant="outline"
+                            ml={4}
+                        />
+                    </Flex>
+                </Flex>
+
+                <VStack spacing={5}>
+                    <Text fontSize="lg" color={styles.boxStyles.color}>
+                        Por favor, selecciona tu universidad y carrera para ordenar las materias.
+                    </Text>
+
+                    {/* Pass colorMode to the select component */}
+                    <UniversitySelect colorMode={colorMode} universities={universities} onChange={handleUniversityChange} />
+
+                    {selectedUniversity && (
+                        <CareerSelect
+                            careers={careers}
+                            onChange={handleCareerChange}
+                            value={selectedCareerId}
+                            colorMode={colorMode}
+                        />
                     )}
-                </Box>
+                </VStack>
+
+                {Object.keys(user).length !== 0 && selectedCareerId && (
+                    <Box width="100%" alignSelf="flex-start" mt={5}>
+                        {rankingMode ? (
+                            <>
+                                <Subjects subjects={subjects} onDragEnd={onDragEnd} colorMode={colorMode} />
+                                <Flex justifyContent="center" mt={4}>
+                                    <Button colorScheme="teal" onClick={handleRankingSubmit}>
+                                        Rankear
+                                    </Button>
+                                </Flex>
+                                {rankingSubmitted && (
+                                    <Alert status="info" mt={4}>
+                                        <AlertIcon />
+                                        Your ranking has been submitted!
+                                    </Alert>
+                                )}
+                                <Flex justifyContent="center" mt={4}>
+                                    <Button colorScheme="gray" onClick={() => setRankingMode(false)}>
+                                        View Current Ranking
+                                    </Button>
+                                </Flex>
+                            </>
+                        ) : (
+                            <>
+                                <Flex direction="column" align="center" width="100%">
+                                    <Text fontSize="xl" fontWeight="bold" color={styles.boxStyles.color} mt={4}>
+                                        Ranking por experiencia general
+                                    </Text>
+                                    <AggregatedRankings colorMode={colorMode} rankings={aggregatedRankings} />
+                                    <Flex justifyContent="center" mt={4}>
+                                        <Button colorScheme="teal" onClick={toggleRankingMode}>
+                                            Let me rank
+                                        </Button>
+                                    </Flex>
+                                </Flex>
+                            </>
+                        )}
+                    </Box>
+                )}
             </Box>
-        </ChakraProvider>
+        </Box>
     );
 }
 

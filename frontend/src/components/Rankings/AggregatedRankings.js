@@ -1,8 +1,10 @@
 import React from 'react';
 import { Box, Text, VStack } from '@chakra-ui/react';
-import { getSubjectStyle, getListStyle } from '../../styles/styles';
+import { getStyles } from '../../styles/styles';
 
-const AggregatedRankings = ({ rankings }) => {
+const AggregatedRankings = ({ rankings, colorMode }) => {
+    const styles = getStyles(colorMode); // Get all styles based on color mode
+
     const sortedRankings = [...rankings].sort((a, b) => {
         const avgScoreA = a[1] / a[2]; // totalScoreA / timesRankedA
         const avgScoreB = b[1] / b[2]; // totalScoreB / timesRankedB
@@ -10,16 +12,15 @@ const AggregatedRankings = ({ rankings }) => {
     });
 
     return (
-        <Box width="100%" alignSelf="flex-start" mt={5} style={getListStyle(false)}>
+        <Box width="100%" alignSelf="flex-start" mt={5} style={styles.getListStyle(false)}>
             <VStack spacing={4} align="stretch">
                 {sortedRankings.map((ranking, index) => (
-                    <Box width="100%" key={index} style={getSubjectStyle({}, false)}>
-                    <Text as="span" fontWeight="bold" mr={2}>
-                        {index + 1}.
-                    </Text>
-                    {console.log(ranking)}
-                    {ranking[0]} - Score: {ranking[1]} (Avg: {(ranking[1] / ranking[2]).toFixed(2)})
-                </Box>
+                    <Box width="100%" key={index} style={styles.getSubjectStyle({}, false)}>
+                        <Text as="span" fontWeight="bold" mr={2}>
+                            {index + 1}.
+                        </Text>
+                        {ranking[0]} - Score: {ranking[1]} (Avg: {(ranking[1] / ranking[2]).toFixed(2)})
+                    </Box>
                 ))}
             </VStack>
         </Box>
