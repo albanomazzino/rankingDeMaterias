@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/rankings")
@@ -23,12 +25,32 @@ public class UserRankingController {
         return new ResponseEntity<>(savedRanking, HttpStatus.CREATED);
     }
 
+
     @GetMapping("/{userId}/{careerId}")
     public ResponseEntity<UserRanking> getUserRanking(@PathVariable BigInteger userId, @PathVariable Long careerId) {
         Optional<UserRanking> userRanking = userRankingService.getUserRanking(userId, careerId);
         return userRanking.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/career/{careerId}")
+    public ResponseEntity<List<Object[]>> getAllRankingsByCareer(@PathVariable Long careerId) {
+        List<Object[]> rankings = userRankingService.getAllRankingsByCareer(careerId);
+        if (rankings.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(rankings);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Map<Long, UserRankingDto>> getAllRankingsByUser(@PathVariable BigInteger userId) {
+        Map<Long, UserRankingDto> rankings = userRankingService.getAllRankingsByUser(userId);
+        if (rankings.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(rankings);
+    }
+
 
     @PutMapping("/{userId}/{careerId}")
     public ResponseEntity<UserRanking> updateUserRanking(@PathVariable BigInteger userId, @PathVariable Long careerId, @RequestBody UserRanking userRanking) {

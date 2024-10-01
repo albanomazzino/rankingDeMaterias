@@ -21,7 +21,7 @@ public class UserRanking {
     @EmbeddedId
     private UserRankingId id;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userRanking")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userRanking", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<RankedCourse> rankedCourses = new ArrayList<>();
 
