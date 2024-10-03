@@ -1,27 +1,26 @@
 import React from 'react';
-import { Select } from '@chakra-ui/react';
-import { getStyles } from '../../styles/styles';
+import Select from 'react-select';
+import { selectStyles } from '../../styles/styles';
 
 const UniversitySelect = ({ universities, onChange, colorMode }) => {
-    const styles = getStyles(colorMode);
+  const options = universities.map((university) => ({
+    value: university.id,
+    label: university.name,
+  }));
 
-    return (
-        <Select
-            width="300px"
-            onChange={onChange}
-            focusBorderColor="black"
-            sx={styles.selectStyles}
-        >
-            <option selected hidden disabled value="">
-                Selecciona tu universidad
-            </option>
-            {universities.map((university) => (
-                <option key={university.id} value={university.id} style={styles.selectOptionStyle}>
-                    {university.name}
-                </option>
-            ))}
-        </Select>
-    );
+  const handleChange = (selectedOption) => {
+    onChange({ target: { value: selectedOption.value } });
+  };
+
+  return (
+    <Select
+      options={options}
+      onChange={handleChange}
+      isSearchable
+      placeholder="Selecciona tu universidad"
+      styles={selectStyles(colorMode)}
+    />
+  );
 };
 
 export default UniversitySelect;

@@ -8,19 +8,19 @@ import {
     Flex,
     useColorMode,
     VStack,
-    Button,
-    Alert,
-    AlertIcon,
+    useToast,
 } from '@chakra-ui/react';
 import { SunIcon, MoonIcon } from '@chakra-ui/icons';
 import UserProfile from './components/Auth/UserProfile';
 import UniversitySelect from './components/Rankings/UniversitySelect';
 import CareerSelect from './components/Rankings/CareerSelect';
-import Subjects from './components/Rankings/Subjects';
 import saveRanking, { fetchUserRankingsByCareer } from './components/Rankings/RankingService';
 import { getStyles, videoStyles } from './styles/styles';
 import { fetchUniversities, fetchCareersByUniversity, fetchSubjectsByCareer } from './components/Schools/SchoolService';
-import AggregatedRankings from './components/Rankings/AggregatedRankings';
+import GeneralRankingView from './components/Rankings/GeneralRankingView';
+import RankingView from './components/Rankings/RankingView';
+import MyRankingsView from './components/Rankings/MyRankingsView';
+
 
 const google = window.google;
 
@@ -34,9 +34,12 @@ function App() {
     const [selectedCareerId, setSelectedCareerId] = useState('');
     const [rankingSubmitted, setRankingSubmitted] = useState(false);
     const [rankingMode, setRankingMode] = useState(false);
+    const [showMyRankings, setShowMyRankings] = useState(false);
     const [aggregatedRankings, setAggregatedRankings] = useState([]);
     const { colorMode, toggleColorMode } = useColorMode();
     const styles = getStyles(colorMode);
+
+    const toast = useToast();
 
     useEffect(() => {
         google.accounts.id.initialize({
@@ -50,20 +53,15 @@ function App() {
         );
 
         google.accounts.id.prompt();
+        renderUniversities();
     }, []);
-
-    useEffect(() => {
-        if (userToken && userToken.length > 0) {
-            renderUniversities(userToken);
-        }
-    }, [userToken]);
 
     const renderUniversities = async() => {
         try {
-            const universitiesData = await fetchUniversities(userToken);
+            const universitiesData = await fetchUniversities();
             setUniversities(universitiesData);
         } catch (error) {
-            alert('Error loading universities');
+            console.log('Error loading universities');
         }
     }
     
@@ -81,18 +79,17 @@ function App() {
         document.getElementById("signInDiv").hidden = false;
     }
 
-    const handleUniversityChange = async(e) => {
-        const universityId = e.target.value;
+    const handleUniversityChange = async (e) => {
+        const universityId = e.target.value;  // no change here
         setSelectedUniversity(universityId);
         setCareers([]);
         setSelectedCareerId('');
         setSubjects([]);
         setAggregatedRankings([]);
-
+    
         try {
-            const careersData = await fetchCareersByUniversity(universityId, userToken);
+            const careersData = await fetchCareersByUniversity(universityId);
             setCareers(careersData);
-
         } catch (error) {
             alert('Error loading careers');
         }
@@ -106,14 +103,14 @@ function App() {
         
         try {
             if (!rankingMode) {
-                const rankingsData = await fetchUserRankingsByCareer(careerId, userToken);
+                const rankingsData = await fetchUserRankingsByCareer(careerId);
                 setAggregatedRankings(rankingsData);
             } else {
-                const subjectsData = await fetchSubjectsByCareer(careerId, userToken);
+                const subjectsData = await fetchSubjectsByCareer(careerId);
                 setSubjects(subjectsData);
             }
         } catch (error) {
-            alert('Error loading data');
+            console.log("backend ensure JSON formats albano acordate dios santo");
         }
     };
 
@@ -132,9 +129,6 @@ function App() {
         setSubjects(reorderedSubjects);
     };
 
-    const printAss = () => {
-        console.log("AAAAAAAAAAAAA");
-    };
 
     const handleRankingSubmit = async () => {
         if (Object.keys(user).length === 0|| !selectedCareerId || subjects.length === 0) {
@@ -157,13 +151,29 @@ function App() {
         try {
             const savedRanking = await saveRanking(userRanking, userToken);
             setRankingSubmitted(true);
+
+            const updatedRankings = await fetchUserRankingsByCareer(selectedCareerId);
+            setAggregatedRankings(updatedRankings);
+
             setRankingMode(false);
+            setShowMyRankings(false);
         } catch (error) {
             alert('Error al guardar el ranking.');
-        }
+        }   
     };
 
     const toggleRankingMode = async () => {
+        if (Object.keys(user).length === 0) { 
+            toast({
+                title: "Please login first.",
+                description: "You must be logged in to create or view rankings.",
+                status: "info",
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
         setRankingMode(!rankingMode);
         
         if (!rankingMode) {
@@ -173,14 +183,13 @@ function App() {
             }
     
             try {
-                const subjectsData = await fetchSubjectsByCareer(selectedCareerId, userToken);
+                const subjectsData = await fetchSubjectsByCareer(selectedCareerId);
                 setSubjects(subjectsData);
             } catch (error) {
                 alert('Error fetching subjects.');
             }
         }
     };
-      
 
     return (
         <Box position="relative" minH="100vh">
@@ -190,12 +199,24 @@ function App() {
 
             <Box sx={styles.boxStyles}>
                 <Flex justify="space-between" align="center" mb={5}>
-                    <Heading as="h1" size="xl" textAlign="center" color={styles.boxStyles.color}>
-                        Ranking de materias
-                    </Heading>
+                <Box
+                    onClick={() => {
+                        setShowMyRankings(false); 
+                        setRankingMode(false)}
+                    }
+                    cursor="pointer"
+                    _hover={{
+                        opacity: 0.8,
+                    }}
+                    transition="opacity 0.3s ease, box-shadow 0.3s ease"
+                >
+                        <Heading as="h1" size="xl" textAlign="center" color={styles.boxStyles.color}>
+                            Ranking de materias
+                        </Heading>
+                    </Box>
                     <Flex align="center">
                         {Object.keys(user).length !== 0 && (    
-                            <UserProfile colormode={colorMode} user={user} onSignOut={handleSignOut} />
+                            <UserProfile colormode={colorMode} user={user} onSignOut={handleSignOut} onClick={() => setShowMyRankings(true)}/>
                         )}
                         <div id="signInDiv" style={styles.signInStyles}></div>
                         <IconButton
@@ -204,16 +225,20 @@ function App() {
                             onClick={toggleColorMode}
                             variant="outline"
                             ml={4}
+                            color={styles.iconButtonStyles.color}
+                            border={styles.iconButtonStyles.border}
                         />
                     </Flex>
                 </Flex>
 
+                {showMyRankings ? ( // Conditionally render MyRankingsView or the general view
+                    <MyRankingsView user={user} token={userToken} setShowMyRankings={setShowMyRankings} colorMode={colorMode}/>
+                ) : (
                 <VStack spacing={5}>
                     <Text fontSize="lg" color={styles.boxStyles.color}>
                         Por favor, selecciona tu universidad y carrera para ordenar las materias.
                     </Text>
 
-                    {/* Pass colorMode to the select component */}
                     <UniversitySelect colorMode={colorMode} universities={universities} onChange={handleUniversityChange} />
 
                     {selectedUniversity && (
@@ -224,47 +249,31 @@ function App() {
                             colorMode={colorMode}
                         />
                     )}
-                </VStack>
+                
 
-                {Object.keys(user).length !== 0 && selectedCareerId && (
+                {selectedCareerId && (
                     <Box width="100%" alignSelf="flex-start" mt={5}>
                         {rankingMode ? (
-                            <>
-                                <Subjects subjects={subjects} onDragEnd={onDragEnd} colorMode={colorMode} />
-                                <Flex justifyContent="center" mt={4}>
-                                    <Button colorScheme="teal" onClick={handleRankingSubmit}>
-                                        Rankear
-                                    </Button>
-                                </Flex>
-                                {rankingSubmitted && (
-                                    <Alert status="info" mt={4}>
-                                        <AlertIcon />
-                                        Your ranking has been submitted!
-                                    </Alert>
-                                )}
-                                <Flex justifyContent="center" mt={4}>
-                                    <Button colorScheme="gray" onClick={() => setRankingMode(false)}>
-                                        View Current Ranking
-                                    </Button>
-                                </Flex>
-                            </>
+                            <RankingView
+                                subjects={subjects}
+                                onDragEnd={onDragEnd}
+                                handleRankingSubmit={handleRankingSubmit}
+                                rankingSubmitted={rankingSubmitted}
+                                setRankingMode={setRankingMode}
+                                colorMode={colorMode}
+                            />
                         ) : (
-                            <>
-                                <Flex direction="column" align="center" width="100%">
-                                    <Text fontSize="xl" fontWeight="bold" color={styles.boxStyles.color} mt={4}>
-                                        Ranking por experiencia general
-                                    </Text>
-                                    <AggregatedRankings colorMode={colorMode} rankings={aggregatedRankings} />
-                                    <Flex justifyContent="center" mt={4}>
-                                        <Button colorScheme="teal" onClick={toggleRankingMode}>
-                                            Let me rank
-                                        </Button>
-                                    </Flex>
-                                </Flex>
-                            </>
+                            <GeneralRankingView
+                                colorMode={colorMode}
+                                aggregatedRankings={aggregatedRankings}
+                                toggleRankingMode={toggleRankingMode}
+                            />
                         )}
                     </Box>
                 )}
+                </VStack>
+                )}
+                
             </Box>
         </Box>
     );

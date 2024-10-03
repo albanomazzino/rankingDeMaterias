@@ -1,28 +1,26 @@
 import React from 'react';
-import { Select } from '@chakra-ui/react';
-import { getStyles } from '../../styles/styles';
+import Select from 'react-select';
+import { selectStyles } from '../../styles/styles';
 
-const CareerSelect = ({ careers, onChange, value, colorMode }) => {
-    const styles = getStyles(colorMode);
+const CareerSelect = ({ careers, onChange, colorMode }) => {
+  const options = careers.map((career) => ({
+    value: career.id,
+    label: career.name,
+  }));
 
-    return (
-        <Select
-            width="300px"
-            onChange={onChange}
-            value={value}
-            focusBorderColor="black"
-            sx={styles.selectStyles}
-        >
-            <option selected hidden disabled value="">
-                Selecciona tu carrera
-            </option>
-            {careers.map((career) => (
-                <option key={career.id} value={career.id} style={styles.selectOptionStyle}>
-                    {career.name}
-                </option>
-            ))}
-        </Select>
-    );
+  const handleChange = (selectedOption) => {
+    onChange({ target: { value: selectedOption.value } });
+  };
+
+  return (
+    <Select
+      options={options}
+      onChange={handleChange}
+      isSearchable
+      placeholder="Selecciona tu carrera"
+      styles={selectStyles(colorMode)}
+    />
+  );
 };
 
 export default CareerSelect;

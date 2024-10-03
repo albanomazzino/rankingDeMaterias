@@ -2,7 +2,6 @@ import { RANKINGS_API_ENDPOINT_URL } from "../../constants";
 
 const saveRanking = async (userRanking, token) => {
     try {
-        console.log(JSON.stringify(userRanking));
         const response = await fetch(`${RANKINGS_API_ENDPOINT_URL}`, {
             method: 'POST',
             headers: {
@@ -23,8 +22,24 @@ const saveRanking = async (userRanking, token) => {
 
 export default saveRanking;
 
-export const fetchUserRankingsByCareer = async (careerId, token) => {
+export const fetchUserRankingsByCareer = async (careerId) => {
     const response = await fetch(`${RANKINGS_API_ENDPOINT_URL}/career/${careerId}`, {
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        if (response.status === 204) {
+            return {};
+        } 
+        throw new Error(`Error fetching rankings: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+};
+
+export const fetchAllUserRankings = async (userId, token) => {
+    const response = await fetch(`${RANKINGS_API_ENDPOINT_URL}/user/${userId}`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -33,6 +48,9 @@ export const fetchUserRankingsByCareer = async (careerId, token) => {
     });
 
     if (!response.ok) {
+        if (response.status === 204) {
+            return {};
+        } 
         throw new Error(`Error fetching rankings: ${response.statusText}`);
     }
 

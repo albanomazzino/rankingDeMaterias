@@ -1,13 +1,9 @@
 import { SCHOOLS_API_ENDPOINT_URL } from "../../constants";
 
-export const fetchUniversities = async (token) => {
+export const fetchUniversities = async () => {
     try {
         const response = await fetch(`${SCHOOLS_API_ENDPOINT_URL}`, {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
         });
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -19,14 +15,10 @@ export const fetchUniversities = async (token) => {
     }
 };
 
-export const fetchCareersByUniversity = async (universityId, token) => {
+export const fetchCareersByUniversity = async (universityId) => {
     try {
         const response = await fetch(`${SCHOOLS_API_ENDPOINT_URL}/${universityId}/careers`, {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
         });
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -39,14 +31,10 @@ export const fetchCareersByUniversity = async (universityId, token) => {
 };
 
 
-export const fetchSubjectsByCareer = async (careerId, token) => {
+export const fetchSubjectsByCareer = async (careerId) => {
     try {
         const response = await fetch(`${SCHOOLS_API_ENDPOINT_URL}/careers/${careerId}/courses`, {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
         });
         if (!response.ok) {
             throw new Error('Network response was not ok');

@@ -10,13 +10,16 @@ export const videoStyles = {
 
 // Define styles for light and dark modes
 const lightStyles = {
-  bg: 'rgba(255, 255, 255, 0.8)',
+  bg: 'rgba(255, 255, 255, 0.6)',
   color: 'black',
-  selectBackground: 'rgba(255, 255, 255, 0)',
+  selectBackground: 'rgba(255, 255, 255, 1)',
   selectBorderColor: 'rgba(0, 0, 0, 0.4)',
   optionBackgroundColor: 'rgba(255, 255, 255, 1)',
   subjectBackground: 'linear-gradient(to right, rgba(128, 128, 128, 0.45), rgba(255, 255, 255, 0))',
   listBackground: 'transparent',
+  selectHoverBackground: 'rgba(100, 100, 100, 0.1)', 
+  optionHoverBackground: 'rgba(0, 128, 128, 0.5)',
+  optionActiveBackground: 'rgba(0, 100, 100, 0.7)',
 };
 
 const darkStyles = {
@@ -24,10 +27,72 @@ const darkStyles = {
   color: 'white',
   selectBackground: 'rgba(0, 0, 0, 0.5)',
   selectBorderColor: 'rgba(255, 255, 255, 0.4)',
-  optionBackgroundColor: 'rgba(0, 0, 0, 0.8)',
+  optionBackgroundColor: 'rgba(0, 0, 0, 0.95)',
   subjectBackground: 'linear-gradient(to right, rgba(50, 50, 50, 0.45), rgba(0, 0, 0, 0))',
-  listBackground: 'rgba(0, 0, 0, 0.3)',
+  listBackground: 'transparent',
+  selectHoverBackground: 'rgba(100, 100, 100, 0.1)', 
+  optionHoverBackground: 'rgba(0, 128, 128, 0.5)',
+  optionActiveBackground: 'rgba(0, 100, 100, 0.7)',
 };
+
+export const selectStyles = (colorMode) => {
+  const currentStyles = colorMode === 'light' ? lightStyles : darkStyles;
+
+  return {
+    control: (base, state) => ({
+      ...base,
+      backgroundColor: currentStyles.selectBackground,
+      borderColor: state.isFocused ? currentStyles.selectBorderColor : currentStyles.selectBorderColor,
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: currentStyles.selectHoverBackground,
+        backgroundColor: currentStyles.selectHoverBackground,
+      },
+      borderRadius: '6px',
+      width: '300px',
+      height: '40px',
+      cursor: 'pointer',
+      color: currentStyles.color,
+    }),
+    input: (base) => ({
+      ...base,
+      color: currentStyles.color,
+      caretColor: currentStyles.color,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? currentStyles.optionHoverBackground
+        : currentStyles.optionBackgroundColor,
+      color: state.isFocused ? (colorMode === 'light' ? 'black' : 'white') : currentStyles.color,
+      cursor: 'pointer',
+      '&:active': {
+        backgroundColor: currentStyles.optionActiveBackground,  // Use the active background color
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      color: currentStyles.color,
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: colorMode === 'light' ? 'black' : 'white',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      borderRadius: '6px',
+      backgroundColor: currentStyles.optionBackgroundColor,
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      color: colorMode === 'light' ? 'grey' : 'white',
+      '&:hover': {
+        color: colorMode === 'light' ? 'black' : 'white',
+      },
+    }),
+  };
+};
+
 
 export const getStyles = (colorMode) => {
   return {
@@ -78,6 +143,11 @@ export const getStyles = (colorMode) => {
     },
     iconButtonStyles: {
       color: colorMode === 'dark' ? 'white' : 'black',
+      border: colorMode === 'light' ? '1px solid rgba(0, 0, 0, 0.4)' : '1px solid rgba(255, 255, 255, 0.4)',
+      _hover: {
+        bg: colorMode === 'light' ? 'rgba(100, 100, 100, 0.1)' : 'rgba(50, 50, 50, 0.8)',
+      }
     },
+    
   };
 };
