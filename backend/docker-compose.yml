@@ -160,6 +160,16 @@ services:
       eureka.client.serviceUrl.defaultZone: http://discovery-server:8761/eureka/
       SPRING_CLOUD_CONFIG_URI: http://config-server:8888
 
+  ranking-frontend-service:
+    container_name: ranking-frontend-service
+    build:
+      context: ../frontend 
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - backend-network
+    restart: unless-stopped
 networks:
   backend-network:
     driver: bridge
